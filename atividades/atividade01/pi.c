@@ -24,6 +24,8 @@ float monteCarloPi(int n){
 }
 
 int main(int argc, char *argv[]){
+	
+	srand(time(NULL));
 
 	if(argc == 2)
 		printf("pi = %.5f\n", monteCarloPi(atoi(argv[1])));
