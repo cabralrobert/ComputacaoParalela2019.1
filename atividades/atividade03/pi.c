@@ -1,7 +1,7 @@
 /************************************************
  * File Name : pi.c
  * Creation Date : 22-04-2019
- * Last Modified : seg 22 abr 2019 23:29:38 -03
+ * Last Modified : qui 09 mai 2019 13:29:41 -03
  * Created By : robertcabral@alu.ufc.br
  * Institution : Universidade Federal do Ceará
  ************************************************/
@@ -22,13 +22,13 @@ float monteCarloPi(int n){
                 if((x * x) + (y * y) < 1)
                         acertos += 1;
         }
-        return (4 * acertos / n);
+        return acertos;
 }
 
 int main(int argc, char* argv[]){
 
     int num_tasks, rank, qtdIterations;
-    float pi = 0;
+    float acertos = 0;
     MPI_Init(&argc, &argv); 
     MPI_Comm_size(MPI_COMM_WORLD, &num_tasks);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -41,19 +41,19 @@ int main(int argc, char* argv[]){
     qtdIterations = (atoi(argv[1]) / num_tasks);
 
     if(rank == 0){
-        pi = monteCarloPi(qtdIterations);
+        acertos = monteCarloPi(qtdIterations);
         float valueRes = 0;
         int i;
 
         for(i = 1; i < num_tasks; i++){
             MPI_Recv(&valueRes, 1, MPI_FLOAT, i, 0, MPI_COMM_WORLD, NULL);
-            pi += valueRes;
+            acertos += valueRes;
         }
 
-        printf("%f\n", pi/num_tasks);
+        printf("%f\n", 4*(acertos/num_tasks)/qtdIterations);
     } else {
-        pi = monteCarloPi(qtdIterations);
-        MPI_Send(&pi, 1, MPI_FLOAT, 0, 0, MPI_COMM_WORLD);
+        acertos = monteCarloPi(qtdIterations);
+        MPI_Send(&acertos, 1, MPI_FLOAT, 0, 0, MPI_COMM_WORLD);
     }
 
 
