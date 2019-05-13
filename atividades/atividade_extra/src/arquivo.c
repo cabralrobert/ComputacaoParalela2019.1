@@ -35,8 +35,8 @@ float *lerMatriz(FILE *arquivoMatriz, int *linhas, int *colunas){
 		}
 	}
     
-    free(line);
-    free(element);
+//    free(line);
+  //  free(element);
     
     return matrix;
 
