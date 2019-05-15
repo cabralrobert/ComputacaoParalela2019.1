@@ -5,15 +5,12 @@
 
 double f(double x) {
    double return_val = 0.0;
-   //return_val = x;
    return_val = cos(x * log(1.0/x));
    return return_val;
 }
 
-#define PROCESSORS 16
-
 int main(int argc, char *argv[]) {
-   
+
     int num_tasks, rank, qtdIterations;
     MPI_Init(&argc, &argv); 
     MPI_Comm_size(MPI_COMM_WORLD, &num_tasks);
@@ -21,63 +18,42 @@ int main(int argc, char *argv[]) {
     MPI_Status status;
 
     // Valor da integral
-   double integral = 0; 
-   // Limites do intervalo
-   double a, b;
-   // Número de trapézios
-   int n;
-   // Base do trapézio
-   double h;
-   double x;
-   int i;
+    double integral = 0; 
+    // Limites do intervalo
+    double a, b;
+    // Número de trapézios
+    int n;
+    // Base do trapézio
+    double h;
+    double x;
+    int i;
 
-   int contribuicoes[num_tasks];
-   double x_local_vet[num_tasks];
+    // guarda os valores de a, b e n
+    a = atof(argv[1]);
+    b = atof(argv[2]);
+    n = atoi(argv[3]);
 
-   a = atof(argv[1]);
-   b = atof(argv[2]);
-   n = atoi(argv[3]);
+    // calcula o tamanho do trapezio a deslocar pela função
+    h = (b - a) / n;
+    
+    // cada processo calcula seu proprio x, ou seja, o local no grafico que começa a calcular a integral
+    x = (((b - a) / num_tasks) * rank) + a;
 
-   h = (b - a) / n;
-
-    if(rank == 0){
-       
-        x = a;
-
-        int new_n = n / num_tasks;
-
-        for(i = 0; i < num_tasks; i++){
-            contribuicoes[i] = new_n;
-            new_n += (n / num_tasks);
-        }
-
-        x_local_vet[0] = a;
-        for(i = 1; i < num_tasks; i++){
-            x_local_vet[i] = ((b - a) / num_tasks) * i;
-        }
-
+    // cada processo calcula sua parte da integral
+    double integral_local = 0.0;
+    for(i = 0; i < (n / num_tasks); i++){
+        x += h;
+        integral_local += f(x);
     }
 
-    int n_local = 0;
-    double x_local = 0.0;
-    double integral_local = 0;
-
-    MPI_Scatter(contribuicoes, 1, MPI_INT, &n_local, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Scatter(x_local_vet, 1, MPI_DOUBLE, &x_local, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-
-
-    for(i = (n_local - (n / num_tasks)); i < n_local; i++){
-        x_local += h;
-        integral_local += f(x_local);
-    }
-
+    // redução com a soma das contribuições
     MPI_Reduce(&integral_local, &integral, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
     
+    // processo 0 soma o trapezio maior a contribuição de cada processo e finaliza printando na tela
     if(rank == 0){
         integral += (f(a) + f(b)) / 2.0;
-        integral = integral / num_tasks;
         integral *= h;
-        printf("%lf\n", integral);
+        printf("%d trapézios, estimativa de %.2f a %.2f = %.5f\n", n, a, b, integral);
     }
 
     MPI_Finalize();
