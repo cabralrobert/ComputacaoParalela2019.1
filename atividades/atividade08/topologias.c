@@ -1,7 +1,7 @@
 /************************************************
  * File Name : topologias.c
  * Creation Date : 15-05-2019
- * Last Modified : qua 15 mai 2019 12:06:17 -03
+ * Last Modified : ter 21 mai 2019 17:18:01 -03
  * Created By : robertcabral@alu.ufc.br
  * Institution : Universidade Federal do Ceará
  ************************************************/
@@ -9,14 +9,6 @@
 #include "mpi.h"
 #include <stdio.h>
 #include <stdlib.h>
-
-struct Node {
-    int rank;
-    int next;
-    int before;
-};
-
-typedef struct Node Node;
 
 int rank, left, right, p;
 MPI_Status status;
@@ -35,47 +27,46 @@ int printArrayForRank(int rank, int *array,  int arraySize) {
 }
 
 int MPI_Ring_broadcast(int *array, int arraySize, MPI_Comm comm) {
-    if(rank == 0)
+    if(rank == 0){
         MPI_Send(array, arraySize, MPI_INT, right, 0, comm);
-    else{
+        MPI_Send(array, arraySize, MPI_INT, left, 0, comm);
+    }else if(rank >= (p/2)){
+        MPI_Recv(array, arraySize, MPI_INT, right, 0, comm, &status);
+        MPI_Send(array, arraySize, MPI_INT, left, 0, comm);
+    }else{
         MPI_Recv(array, arraySize, MPI_INT, left, 0, comm, &status);
         MPI_Send(array, arraySize, MPI_INT, right, 0, comm);
     }
 }
 
 int MPI_Mesh_broadcast(int *array, int arraySize, MPI_Comm comm) {
+    // cria o mesh
     int dims[2] = {4,4};
-    int periods[2] = {1,1};
+    int periods[2] = {0,0};
     MPI_Comm comm_aux;
     MPI_Cart_create(comm, 2, dims, periods, 0, &comm_aux);
 
-    int source, dest;
+    // recupera os vizinhos
     int *vizinhos = malloc(4 * sizeof(int));
     MPI_Cart_shift(comm_aux, 0, 1, &vizinhos[0], &vizinhos[1]);
     MPI_Cart_shift(comm_aux, 1, 1, &vizinhos[2], &vizinhos[3]);
 
-    // processo 0 envia para todos os vizinhos
-    if(rank == 0){        
-        for(int i = 0; i < 4; i++){
-            MPI_Send(array, arraySize, MPI_INT, vizinhos[i], 0, comm);
-        }
-    }
+    // recupera a coordenada no mesh
+    int coord[2];
+    MPI_Cart_coords(comm_aux, rank, 2, coord);
 
-    // recupera o rank do ultimo elemento da primeira linha
-    int coord[2] = {0, (p/4) - 1};
-    int rank_a;
-    MPI_Cart_rank(comm_aux, coord, &rank_a);
-
-    if(rank <= rank_a){
-        // recebe do vizinho da esquerda e envia para o vizinho da direita
-        MPI_Recv(array, arraySize, MPI_INT, vizinhos[2], 0, MPI_COMM_WORLD, &status);
+    if(coord[1] == 0){
+        // Se rank não for zero recebe do vizinho de cima
+        if(rank != 0)
+            MPI_Recv(array, arraySize, MPI_INT, vizinhos[0], 0, MPI_COMM_WORLD, &status);
+        
+        // envia para os vizinhos da direita e de baixo
         MPI_Send(array, arraySize, MPI_INT, vizinhos[3], 0, MPI_COMM_WORLD);
-        // envia para o processo abaixo
         MPI_Send(array, arraySize, MPI_INT, vizinhos[1], 0, MPI_COMM_WORLD);
     }else{
-        // recebe do processo acima e envia para o processo abaixo
-        MPI_Recv(array, arraySize, MPI_INT, vizinhos[0], 0, MPI_COMM_WORLD, &status);
-        MPI_Send(array, arraySize, MPI_INT, vizinhos[1], 0, MPI_COMM_WORLD);
+        // se não está na primeira coluna, recebe da direita e envia para a direita
+        MPI_Recv(array, arraySize, MPI_INT, vizinhos[2], 0, MPI_COMM_WORLD, &status);
+        MPI_Send(array, arraySize, MPI_INT, vizinhos[3], 0, MPI_COMM_WORLD);
     }
 }
 
