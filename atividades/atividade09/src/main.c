@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <mpi.h>
+#include <omp.h>
 #include "arquivo.h"
 
 
@@ -37,13 +37,17 @@ int main(int argc, char* argv[]){
 
     int i, j, z;
 
-    for(i = 0; i < linhasResult; i++)
-		for(j = 0; j < colunasResult;j++)
-            for(z = 0; z < colunasMatrix; z++)
+    #pragma omp parallel for shared(linhasResult, colunasResult, colunasMatrix, vetRes, matrixRes, vectorRes, colunasVector) private(i, j, z) schedule(static)
+    for(i = 0; i < linhasResult; i++){
+	for(j = 0; j < colunasResult;j++){
+            for(z = 0; z < colunasMatrix; z++){
     		    MATRIX_POS(vetRes, colunasResult, i, j) +=  MATRIX_POS(matrixRes, colunasMatrix, i, z) * MATRIX_POS(vectorRes, colunasVector, z, j);
+	    }
+	}
+    }
 
     escreverMatriz(argv[RESULTADO], vetRes, linhasResult, colunasResult);
-    imprimirMatriz(vetRes, linhasResult, colunasResult);
+//    imprimirMatriz(vetRes, linhasResult, colunasResult);
 
     liberarMatriz(matrixRes);
     liberarMatriz(vectorRes);
