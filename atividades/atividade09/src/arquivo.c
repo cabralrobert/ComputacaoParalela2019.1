@@ -64,9 +64,9 @@ void escreverMatriz(char *nomeDoArquivo, double *m, int linhas, int colunas){
         for(i = 0; i < linhas; i++){
             for(j = 0; j < colunas; j++){
                 if(j == colunas - 1)
-                    fprintf(matrixOut, "%.2lf\n", MATRIX_POS(m, colunas, i, j));
+                    fprintf(matrixOut, "%.4lf\n", MATRIX_POS(m, colunas, i, j));
                 else
-                    fprintf(matrixOut, "%.2lf:", MATRIX_POS(m, colunas, i, j));
+                    fprintf(matrixOut, "%.4lf:", MATRIX_POS(m, colunas, i, j));
             }
         }
     }
