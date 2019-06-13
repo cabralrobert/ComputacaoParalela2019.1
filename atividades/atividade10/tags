@@ -1,0 +1,31 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ARQUIVO_H_	inc/arquivo.h	2;"	d
+BIN	makefile	/^BIN = bin$/;"	m
+ERRO	inc/arquivo.h	/^	ERRO = 0$/;"	e	enum:status_t
+GCC	makefile	/^GCC = mpicc$/;"	m
+INC	makefile	/^INC = -Iinc\/ -w$/;"	m
+MATRIX_POS	inc/arquivo.h	8;"	d
+MATRIZ	inc/arquivo.h	/^	MATRIZ = 1,$/;"	e	enum:arquivos_t
+OBJ	makefile	/^OBJ = obj$/;"	m
+RESULTADO	inc/arquivo.h	/^	RESULTADO = 3$/;"	e	enum:arquivos_t
+SUCESSO	inc/arquivo.h	/^	SUCESSO = 1,$/;"	e	enum:status_t
+VETOR	inc/arquivo.h	/^	VETOR = 2,$/;"	e	enum:arquivos_t
+arquivos_t	inc/arquivo.h	/^enum arquivos_t {$/;"	g
+arquivos_t	inc/arquivo.h	/^} arquivos_t;$/;"	v	typeref:enum:arquivos_t
+calculaMultiplicacao	src/multiplicacaoMatrizVetor.c	/^float* calculaMultiplicacao(float* matriz, int line_matriz, int column_matriz, float* vetor, int column_vetor){$/;"	f
+escreverMatriz	src/arquivo.c	/^void escreverMatriz(char *nomeDoArquivo, float *m, int linhas, int colunas){$/;"	f
+getNextLine	src/arquivo.c	/^char* getNextLine(FILE* file){	$/;"	f
+imprimirMatriz	src/arquivo.c	/^void imprimirMatriz(float *m, int linhas, int colunas){$/;"	f
+initMatrix	src/arquivo.c	/^float *initMatrix(int line_size, int column_size){$/;"	f
+lerMatriz	src/arquivo.c	/^float *lerMatriz(FILE *arquivoMatriz, int *linhas, int *colunas){$/;"	f
+liberarMatriz	src/arquivo.c	/^void liberarMatriz(float *m){$/;"	f
+lineVet	inc/arquivo.h	/^static char *lineVet;$/;"	v
+main	src/multiplicacaoMatrizVetor.c	/^int main(int argc, char* argv[]){$/;"	f
+status_t	inc/arquivo.h	/^enum status_t {$/;"	g
+status_t	inc/arquivo.h	/^} status_t;$/;"	v	typeref:enum:status_t
+tamanho	inc/arquivo.h	/^static size_t tamanho = 10;$/;"	v
